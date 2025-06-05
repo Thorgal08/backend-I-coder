@@ -1,0 +1,26 @@
+[
+  {
+    "id": 2,
+    "title": "Nuevo producto",
+    "description": "Descripción del nuevo producto",
+    "code": "XYZ789",
+    "price": 250,
+    "status": true,
+    "stock": 50,
+    "category": "tecnología",
+    "thumbnails": [
+      "/img/producto1.png"
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Producto de prueba",
+    "description": "Este es un producto de prueba",
+    "code": "ABC123",
+    "price": 100,
+    "status": true,
+    "stock": 10,
+    "category": "general",
+    "thumbnails": []
+  }
+]
