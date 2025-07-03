@@ -1,15 +1,5 @@
 [
   {
-    "id": 1,
-    "title": "Pendrive",
-    "description": "128 gb",
-    "price": 1000,
-    "code": "00010011",
-    "stock": 10,
-    "status": true,
-    "thumbnails": []
-  },
-  {
     "id": 3,
     "title": "Spider Wax",
     "description": "Cera modeladora de alta resistencia",
@@ -28,6 +18,17 @@
     "code": "22",
     "stock": 22,
     "category": "perro",
+    "status": true,
+    "thumbnails": []
+  },
+  {
+    "id": 5,
+    "title": "topo",
+    "description": "eee",
+    "price": 33333,
+    "code": "3333",
+    "stock": 3333,
+    "category": "eeee",
     "status": true,
     "thumbnails": []
   }
