@@ -28,7 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 // Rutas API
-app.use('/api/products', productsRouter);
+app.use('/api/products', productsRouter(io));
 app.use('/api/carts', cartsRouter);
 
 // Rutas vistas

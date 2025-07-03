@@ -10,13 +10,24 @@
     "thumbnails": []
   },
   {
-    "id": 2,
-    "title": "perro",
-    "description": "hola",
-    "price": 2000,
-    "code": "11100220",
-    "stock": 52,
+    "id": 3,
+    "title": "Spider Wax",
+    "description": "Cera modeladora de alta resistencia",
+    "code": "SWX01",
+    "price": 9900,
+    "status": true,
+    "stock": 20,
     "category": "estética",
+    "thumbnails": []
+  },
+  {
+    "id": 4,
+    "title": "perro 2",
+    "description": "22",
+    "price": 22,
+    "code": "22",
+    "stock": 22,
+    "category": "perro",
     "status": true,
     "thumbnails": []
   }
