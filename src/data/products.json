@@ -11,12 +11,12 @@
   },
   {
     "id": 2,
-    "title": "harddrive",
-    "description": "500 teras",
-    "price": 23333333,
-    "code": "113121212",
-    "stock": 111,
-    "category": "tecnología",
+    "title": "perro",
+    "description": "hola",
+    "price": 2000,
+    "code": "11100220",
+    "stock": 52,
+    "category": "estética",
     "status": true,
     "thumbnails": []
   }
