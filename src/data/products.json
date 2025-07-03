@@ -1,13 +1,23 @@
 [
   {
     "id": 1,
-    "title": "Spider Wax",
-    "description": "Cera modeladora de alta resistencia",
-    "code": "SWX01",
-    "price": 9900,
+    "title": "Pendrive",
+    "description": "128 gb",
+    "price": 1000,
+    "code": "00010011",
+    "stock": 10,
     "status": true,
-    "stock": 20,
-    "category": "estética",
+    "thumbnails": []
+  },
+  {
+    "id": 2,
+    "title": "harddrive",
+    "description": "500 teras",
+    "price": 23333333,
+    "code": "113121212",
+    "stock": 111,
+    "category": "tecnología",
+    "status": true,
     "thumbnails": []
   }
 ]
