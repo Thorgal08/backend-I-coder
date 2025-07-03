@@ -22,7 +22,16 @@ router.get('/:pid', async (req, res) => {
 
 // POST /api/products/ - Crear un nuevo producto
 router.post('/', async (req, res) => {
-  const { title, description, code, price, status, stock, category, thumbnails } = req.body;
+  const {
+    title,
+    description,
+    code,
+    price,
+    status,
+    stock,
+    category,
+    thumbnails
+  } = req.body;
 
   if (!title || !description || !code || price == null || stock == null || !category) {
     return res.status(400).json({ error: 'Faltan campos obligatorios' });
@@ -65,48 +74,5 @@ router.delete('/:pid', async (req, res) => {
 
   res.json({ message: 'Producto eliminado exitosamente' });
 });
-
-router.get('/:pid', async (req, res) => {
-  const pid = req.params.pid;
-  const product = await productManager.getProductById(pid);
-
-  if (!product) {
-    return res.status(404).json({ error: 'Producto no encontrado' });
-  }
-
-  res.json(product);
-});
-
-router.post('/', async (req, res) => {
-  const {
-    title,
-    description,
-    code,
-    price,
-    status,
-    stock,
-    category,
-    thumbnails
-  } = req.body;
-
-  // Validación básica
-  if (!title || !description || !code || price == null || stock == null || !category) {
-    return res.status(400).json({ error: 'Faltan campos obligatorios' });
-  }
-
-  const newProduct = await productManager.addProduct({
-    title,
-    description,
-    code,
-    price,
-    status: status !== undefined ? status : true,
-    stock,
-    category,
-    thumbnails: thumbnails || []
-  });
-
-  res.status(201).json(newProduct);
-});
-
 
 module.exports = router;

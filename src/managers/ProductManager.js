@@ -1,16 +1,21 @@
-const fs = require('fs').promises;
+const fs = require('fs');
+const fsp = require('fs').promises;
 const path = require('path');
-
-const filePath = path.join(__dirname, '../data/products.json');
 
 class ProductManager {
   constructor() {
-    this.path = filePath;
+    this.path = path.resolve(__dirname, '../data/products.json'); // ← ASEGURA RUTA ABSOLUTA
+
+    // Verificar y crear carpeta si no existe
+    const dir = path.dirname(this.path);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
   }
 
   async _readFile() {
     try {
-      const data = await fs.readFile(this.path, 'utf-8');
+      const data = await fsp.readFile(this.path, 'utf-8');
       return JSON.parse(data);
     } catch (err) {
       return [];
@@ -18,7 +23,7 @@ class ProductManager {
   }
 
   async _writeFile(data) {
-    await fs.writeFile(this.path, JSON.stringify(data, null, 2));
+    await fsp.writeFile(this.path, JSON.stringify(data, null, 2));
   }
 
   async getProducts() {
@@ -27,7 +32,7 @@ class ProductManager {
 
   async getProductById(id) {
     const products = await this._readFile();
-    return products.find(prod => prod.id === id);
+    return products.find(prod => prod.id === id) || null;
   }
 
   async addProduct(product) {
@@ -35,7 +40,7 @@ class ProductManager {
     const newId = products.length > 0 ? products[products.length - 1].id + 1 : 1;
     const newProduct = { id: newId, ...product };
     products.push(newProduct);
-    await this._writeFile(products);
+    await this._writeFile(products); // 👈 AQUÍ FALLABA PORQUE this.path ERA UNDEFINED
     return newProduct;
   }
 
@@ -44,7 +49,6 @@ class ProductManager {
     const index = products.findIndex(prod => prod.id === id);
     if (index === -1) return null;
 
-    // Asegurar que no se sobreescriba el ID
     products[index] = { ...products[index], ...updates, id: products[index].id };
     await this._writeFile(products);
     return products[index];
@@ -57,42 +61,6 @@ class ProductManager {
     await this._writeFile(filtered);
     return true;
   }
-
-async getProductById(id) {
-  try {
-    const data = await this.getProducts();
-    const product = data.find(p => p.id == id);
-    return product || null;
-  } catch (error) {
-    console.error('Error obteniendo producto por ID:', error);
-    return null;
-  }
-}
-
-async addProduct(productData) {
-  try {
-    const products = await this.getProducts();
-
-    // Generar nuevo ID autoincrementable
-    const newId = products.length > 0 ? products[products.length - 1].id + 1 : 1;
-
-    const newProduct = {
-      id: newId,
-      ...productData
-    };
-
-    products.push(newProduct);
-
-    await fs.writeFile(this.filePath, JSON.stringify(products, null, 2));
-
-    return newProduct;
-  } catch (error) {
-    console.error('Error agregando producto:', error);
-    return null;
-  }
-}
-
-  
 }
 
 module.exports = ProductManager;

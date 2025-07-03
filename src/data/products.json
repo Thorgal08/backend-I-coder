@@ -1,26 +1,13 @@
 [
   {
-    "id": 2,
-    "title": "Nuevo producto",
-    "description": "Descripción del nuevo producto",
-    "code": "XYZ789",
-    "price": 250,
+    "id": 1,
+    "title": "Spider Wax",
+    "description": "Cera modeladora de alta resistencia",
+    "code": "SWX01",
+    "price": 9900,
     "status": true,
-    "stock": 50,
-    "category": "tecnología",
-    "thumbnails": [
-      "/img/producto1.png"
-    ]
-  },
-  {
-    "id": 3,
-    "title": "Producto de prueba",
-    "description": "Este es un producto de prueba",
-    "code": "ABC123",
-    "price": 100,
-    "status": true,
-    "stock": 10,
-    "category": "general",
+    "stock": 20,
+    "category": "estética",
     "thumbnails": []
   }
 ]
