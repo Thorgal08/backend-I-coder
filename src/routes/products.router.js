@@ -1,19 +1,35 @@
 const express = require('express');
-const ProductManager = require('../managers/ProductManager');
+const ProductManager = require('../managers/ProductManagerMongo');
 
 module.exports = function(io) {
   const router = express.Router();
   const productManager = new ProductManager();
 
-  // GET /api/products/ - Obtener todos los productos
+  // GET /api/products/ - Obtener productos con paginación, filtros y ordenamiento
   router.get('/', async (req, res) => {
-    const products = await productManager.getProducts();
-    res.json(products);
+    try {
+      const options = {
+        limit: req.query.limit,
+        page: req.query.page,
+        sort: req.query.sort,
+        query: req.query.query,
+        category: req.query.category,
+        status: req.query.status
+      };
+
+      const result = await productManager.getProducts(options);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ 
+        status: 'error', 
+        message: error.message 
+      });
+    }
   });
 
   // GET /api/products/:pid - Obtener producto por ID
   router.get('/:pid', async (req, res) => {
-    const pid = parseInt(req.params.pid);
+    const pid = req.params.pid;
     const product = await productManager.getProductById(pid);
 
     if (!product) return res.status(404).json({ error: 'Producto no encontrado' });
@@ -50,7 +66,7 @@ module.exports = function(io) {
     });
 
     // Emitir actualización a todos los clientes conectados
-    const updatedProducts = await productManager.getProducts();
+    const updatedProducts = await productManager.getProductsSimple();
     io.emit('updateProducts', updatedProducts);
 
     res.status(201).json(newProduct);
@@ -72,13 +88,13 @@ module.exports = function(io) {
 
   // DELETE /api/products/:pid - Eliminar producto
   router.delete('/:pid', async (req, res) => {
-    const pid = parseInt(req.params.pid);
+    const pid = req.params.pid;
     const deleted = await productManager.deleteProduct(pid);
 
     if (!deleted) return res.status(404).json({ error: 'Producto no encontrado' });
 
     // Emitir actualización a todos los clientes conectados
-    const updatedProducts = await productManager.getProducts();
+    const updatedProducts = await productManager.getProductsSimple();
     io.emit('updateProducts', updatedProducts);
 
     res.json({ message: 'Producto eliminado exitosamente' });

@@ -1,0 +1,232 @@
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold text-primary">
+      <i class="bi bi-cart-fill"></i> Gestión de Carritos
+    </h1>
+    <div>
+      <button class="btn btn-success me-2" onclick="createNewCart()">
+        <i class="bi bi-plus-circle"></i> Nuevo Carrito
+      </button>
+      <a href="/products" class="btn btn-outline-primary">
+        <i class="bi bi-shop"></i> Ir al Catálogo
+      </a>
+    </div>
+  </div>
+
+  <!-- Alert para notificaciones -->
+  <div id="cart-alert" class="alert alert-success alert-dismissible fade" style="display: none;" role="alert">
+    <span id="alert-message"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  {{#if carts.length}}
+    <div class="row g-4">
+      {{#each carts}}
+      <div class="col-lg-6">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-header bg-gradient bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-cart3"></i> Carrito #{{@index}}
+            </h5>
+            <small class="badge bg-light text-dark">
+              {{this.products.length}} productos
+            </small>
+          </div>
+          
+          <div class="card-body">
+            <div class="row mb-3">
+              <div class="col-6">
+                <small class="text-muted">ID del Carrito:</small>
+                <div class="font-monospace text-truncate" style="font-size: 0.8rem;">
+                  {{this._id}}
+                </div>
+              </div>
+              <div class="col-6">
+                <small class="text-muted">Creado:</small>
+                <div class="text-muted" style="font-size: 0.9rem;">
+                  {{formatDate this.createdAt}}
+                </div>
+              </div>
+            </div>
+
+            {{#if this.products.length}}
+              <!-- Preview de productos en el carrito -->
+              <div class="mb-3">
+                <h6 class="text-muted mb-2">Productos en el carrito:</h6>
+                {{#each this.products}}
+                <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                  <div class="flex-grow-1">
+                    <div class="fw-bold" style="font-size: 0.9rem;">{{this.product.title}}</div>
+                    <small class="text-muted">${{this.product.price}} x {{this.quantity}}</small>
+                  </div>
+                  <span class="badge bg-primary">${{multiply this.product.price this.quantity}}</span>
+                </div>
+                {{/each}}
+              </div>
+              
+              <!-- Total del carrito -->
+              <div class="border-top pt-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="fw-bold">Total del Carrito:</span>
+                  <span class="h5 text-success mb-0">${{calculateCartTotal this.products}}</span>
+                </div>
+              </div>
+            {{else}}
+              <div class="text-center py-4">
+                <i class="bi bi-cart-x text-muted" style="font-size: 2rem;"></i>
+                <p class="text-muted mt-2">Carrito vacío</p>
+              </div>
+            {{/if}}
+          </div>
+          
+          <div class="card-footer bg-transparent">
+            <div class="d-grid gap-2">
+              <a href="/carts/{{this._id}}" class="btn btn-primary">
+                <i class="bi bi-eye"></i> Ver Carrito Completo
+              </a>
+              {{#if this.products.length}}
+              <button class="btn btn-outline-danger btn-sm" onclick="clearCart('{{this._id}}')">
+                <i class="bi bi-trash"></i> Vaciar Carrito
+              </button>
+              {{/if}}
+            </div>
+          </div>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+
+    <!-- Paginación si hay muchos carritos -->
+    {{#if (gt carts.length 6)}}
+    <nav class="mt-4">
+      <ul class="pagination justify-content-center">
+        <li class="page-item">
+          <a class="page-link" href="#" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item">
+          <a class="page-link" href="#" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    {{/if}}
+
+  {{else}}
+    <!-- Estado vacío -->
+    <div class="text-center py-5">
+      <div class="card mx-auto" style="max-width: 400px;">
+        <div class="card-body text-center">
+          <i class="bi bi-cart-x text-muted" style="font-size: 4rem;"></i>
+          <h4 class="mt-3 text-muted">No hay carritos</h4>
+          <p class="text-muted">Crea tu primer carrito para comenzar a agregar productos</p>
+          <button class="btn btn-primary btn-lg" onclick="createNewCart()">
+            <i class="bi bi-plus-circle"></i> Crear Primer Carrito
+          </button>
+        </div>
+      </div>
+    </div>
+  {{/if}}
+</div>
+
+<!-- JavaScript para funcionalidad de carritos -->
+<script>
+// Crear nuevo carrito
+async function createNewCart() {
+  try {
+    const response = await fetch('/api/carts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      showAlert(`¡Carrito creado exitosamente! ID: ${result._id}`, 'success');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } else {
+      showAlert('Error al crear el carrito', 'danger');
+    }
+  } catch (error) {
+    showAlert('Error de conexión', 'danger');
+  }
+}
+
+// Vaciar carrito
+async function clearCart(cartId) {
+  if (!confirm('¿Estás seguro de que quieres vaciar este carrito?')) {
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/api/carts/${cartId}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      showAlert('Carrito vaciado exitosamente', 'success');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } else {
+      showAlert('Error al vaciar el carrito', 'danger');
+    }
+  } catch (error) {
+    showAlert('Error de conexión', 'danger');
+  }
+}
+
+// Mostrar alertas
+function showAlert(message, type) {
+  const alert = document.getElementById('cart-alert');
+  const alertMessage = document.getElementById('alert-message');
+  
+  alert.className = `alert alert-${type} alert-dismissible fade show`;
+  alertMessage.textContent = message;
+  alert.style.display = 'block';
+  
+  setTimeout(() => {
+    alert.style.display = 'none';
+  }, 5000);
+}
+
+// Formatear fecha
+document.addEventListener('DOMContentLoaded', function() {
+  const dateElements = document.querySelectorAll('[data-date]');
+  dateElements.forEach(element => {
+    const date = new Date(element.dataset.date);
+    element.textContent = date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  });
+});
+</script>
+
+<style>
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.bg-gradient {
+  background: linear-gradient(45deg, #007bff, #0056b3) !important;
+}
+
+.font-monospace {
+  font-family: 'Courier New', Courier, monospace;
+}
+</style>

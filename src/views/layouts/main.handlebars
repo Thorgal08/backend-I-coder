@@ -2,13 +2,149 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>{{title}}</title>
+  <title>{{title}} - E-commerce</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    .navbar-brand {
+      font-weight: bold;
+    }
+    .cart-counter {
+      background: #dc3545;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 0.75rem;
+      margin-left: 5px;
+    }
+  </style>
 </head>
 <body>
-  {{{body}}}
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <i class="bi bi-shop"></i> E-Commerce
+      </a>
+      
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/">
+              <i class="bi bi-house"></i> Inicio
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/products">
+              <i class="bi bi-grid"></i> Catálogo
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/realtimeproducts">
+              <i class="bi bi-lightning"></i> Productos en Tiempo Real
+            </a>
+          </li>
+        </ul>
+        
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/cart" id="cart-nav-link">
+              <i class="bi bi-cart3"></i> Mi Carrito
+              <span id="cart-counter" class="cart-counter" style="display: none;">0</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenido principal -->
+  <main>
+    {{{body}}}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-light py-4 mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <h5>E-Commerce Backend</h5>
+          <p class="mb-0">Sistema de gestión de productos y carritos con MongoDB</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <small class="text-muted">
+            Desarrollado con Node.js + Express + Socket.IO + MongoDB
+          </small>
+        </div>
+      </div>
+    </div>
+  </footer>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
+  
+  <!-- Script global para carrito -->
+  <script>
+    // Función para obtener o crear carrito único
+    async function getOrCreateCart() {
+      let currentCartId = localStorage.getItem('currentCartId');
+      
+      if (!currentCartId) {
+        try {
+          const response = await fetch('/api/carts', { method: 'POST' });
+          if (response.ok) {
+            const cart = await response.json();
+            currentCartId = cart._id;
+            localStorage.setItem('currentCartId', currentCartId);
+          }
+        } catch (error) {
+          console.error('Error creando carrito:', error);
+        }
+      }
+      
+      return currentCartId;
+    }
+
+    // Inicializar carrito en navbar
+    document.addEventListener('DOMContentLoaded', async function() {
+      const cartId = await getOrCreateCart();
+      const cartNavLink = document.getElementById('cart-nav-link');
+      
+      if (cartId && cartNavLink) {
+        cartNavLink.href = `/carts/${cartId}`;
+        updateCartCounter();
+      }
+    });
+
+    // Función global para actualizar contador
+    async function updateCartCounter() {
+      const currentCartId = await getOrCreateCart();
+      if (!currentCartId) return;
+      
+      try {
+        const response = await fetch(`/api/carts/${currentCartId}`);
+        if (response.ok) {
+          const cart = await response.json();
+          // Verificar que cart.products existe y es un array
+          const products = cart.products || [];
+          const totalItems = Array.isArray(products) ? 
+            products.reduce((sum, item) => sum + (item.quantity || 0), 0) : 0;
+          
+          const counter = document.getElementById('cart-counter');
+          if (counter) {
+            counter.textContent = totalItems;
+            counter.style.display = totalItems > 0 ? 'inline' : 'none';
+          }
+        }
+      } catch (error) {
+        console.error('Error actualizando contador:', error);
+      }
+    }
+  </script>
 </body>
 </html>

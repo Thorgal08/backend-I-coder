@@ -10,6 +10,7 @@ socket.on('updateProducts', (products) => {
   products.forEach(p => {
     const col = document.createElement('div');
     col.className = 'col-md-6';
+    const productId = p._id || p.id; // Usar _id de MongoDB o id como fallback
     col.innerHTML = `
       <div class="card product-card shadow-sm">
         <div class="card-body d-flex flex-column">
@@ -19,7 +20,7 @@ socket.on('updateProducts', (products) => {
           </div>
           <p class="card-text text-muted mb-1">${p.description}</p>
           <ul class="list-unstyled mb-2">
-            <li><span class="badge bg-secondary">ID: ${p.id}</span></li>
+            <li><span class="badge bg-secondary">ID: ${productId}</span></li>
             <li><span class="badge bg-info text-dark">Código: ${p.code}</span></li>
             <li><span class="badge bg-warning text-dark">Stock: ${p.stock}</span></li>
             <li><span class="badge bg-success">Categoría: ${p.category}</span></li>
@@ -30,7 +31,7 @@ socket.on('updateProducts', (products) => {
               }
             </li>
           </ul>
-          <button class="btn btn-danger btn-sm align-self-end mt-auto" onclick="deleteProduct(${p.id})">
+          <button class="btn btn-danger btn-sm align-self-end mt-auto" onclick="deleteProduct('${productId}')">
             <i class="bi bi-trash"></i> Eliminar
           </button>
         </div>
@@ -57,5 +58,10 @@ if (form) {
 
 // Función para eliminar producto
 function deleteProduct(id) {
+  if (!id) {
+    console.error('ID del producto no válido');
+    return;
+  }
+  console.log('Eliminando producto con ID:', id);
   socket.emit('deleteProduct', id);
 }

@@ -1,0 +1,212 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <!-- Card principal de éxito -->
+      <div class="card border-0 shadow-lg">
+        <div class="card-body text-center py-5">
+          <!-- Icono de éxito -->
+          <div class="mb-4">
+            <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center" 
+                 style="width: 100px; height: 100px;">
+              <i class="bi bi-check-lg text-white" style="font-size: 3rem;"></i>
+            </div>
+          </div>
+
+          <!-- Título principal -->
+          <h1 class="text-success fw-bold mb-3">
+            ✅ Compra Finalizada con Éxito
+          </h1>
+
+          <!-- Mensaje de agradecimiento -->
+          <p class="text-muted fs-5 mb-4">
+            ¡Gracias por tu compra! Tu pedido ha sido procesado correctamente.
+          </p>
+
+          <!-- Información del pedido -->
+          <div class="bg-light rounded p-4 mb-4">
+            <div class="row text-start">
+              <div class="col-md-6">
+                <h6 class="text-muted mb-1">Número de Pedido:</h6>
+                <p class="fw-bold font-monospace fs-5 text-primary mb-3">{{orderNumber}}</p>
+              </div>
+              <div class="col-md-6">
+                <h6 class="text-muted mb-1">Fecha de Compra:</h6>
+                <p class="fw-bold mb-3">{{formatDate date}}</p>
+              </div>
+              <div class="col-md-6">
+                <h6 class="text-muted mb-1">Total de Productos:</h6>
+                <p class="fw-bold mb-3">{{items}} artículos</p>
+              </div>
+              <div class="col-md-6">
+                <h6 class="text-muted mb-1">Total Pagado:</h6>
+                <p class="fw-bold fs-4 text-success mb-3">${{total}}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mensaje adicional -->
+          <div class="alert alert-info border-0" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <strong>Pronto recibirás un correo electrónico con los detalles de tu pedido.</strong>
+          </div>
+
+          <!-- Resumen de productos comprados -->
+          <div class="card mt-4">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">
+                <i class="bi bi-bag-check"></i> Productos Comprados
+              </h5>
+            </div>
+            <div class="card-body">
+              {{#each products}}
+              <div class="d-flex justify-content-between align-items-center py-2 {{#unless @last}}border-bottom{{/unless}}">
+                <div class="d-flex align-items-center">
+                  <div class="me-3">
+                    {{#if this.product.thumbnails}}
+                      <img src="{{this.product.thumbnails}}" 
+                           class="rounded" 
+                           style="width: 50px; height: 50px; object-fit: cover;" 
+                           alt="{{this.product.title}}">
+                    {{else}}
+                      <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                           style="width: 50px; height: 50px;">
+                        <i class="bi bi-image text-muted"></i>
+                      </div>
+                    {{/if}}
+                  </div>
+                  <div class="text-start">
+                    <h6 class="mb-1">{{this.product.title}}</h6>
+                    <small class="text-muted">{{this.product.code}}</small>
+                  </div>
+                </div>
+                <div class="text-end">
+                  <div class="fw-bold">${{this.product.price}} x {{this.quantity}}</div>
+                  <small class="text-muted">Subtotal: ${{multiply this.product.price this.quantity}}</small>
+                </div>
+              </div>
+              {{/each}}
+            </div>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="mt-4 d-grid gap-2 d-md-flex justify-content-md-center">
+            <a href="/products" class="btn btn-primary btn-lg">
+              <i class="bi bi-arrow-left"></i> Volver al Catálogo
+            </a>
+            <button class="btn btn-outline-secondary btn-lg" onclick="window.print()">
+              <i class="bi bi-printer"></i> Imprimir Comprobante
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información adicional -->
+      <div class="text-center mt-4">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="card h-100 border-0 bg-light">
+              <div class="card-body text-center">
+                <i class="bi bi-truck text-primary" style="font-size: 2rem;"></i>
+                <h6 class="mt-2">Envío Gratis</h6>
+                <small class="text-muted">Llegará en 3-5 días hábiles</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100 border-0 bg-light">
+              <div class="card-body text-center">
+                <i class="bi bi-shield-check text-success" style="font-size: 2rem;"></i>
+                <h6 class="mt-2">Compra Segura</h6>
+                <small class="text-muted">Transacción protegida</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100 border-0 bg-light">
+              <div class="card-body text-center">
+                <i class="bi bi-headset text-info" style="font-size: 2rem;"></i>
+                <h6 class="mt-2">Soporte 24/7</h6>
+                <small class="text-muted">Estamos aquí para ti</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confetti de celebración -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Crear confetti simple con CSS
+  createConfetti();
+  
+  // Limpiar localStorage del carrito
+  localStorage.removeItem('currentCartId');
+  
+  // Auto-scroll al top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+function createConfetti() {
+  const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#ffa726', '#66bb6a', '#ab47bc'];
+  
+  for (let i = 0; i < 50; i++) {
+    const confetti = document.createElement('div');
+    confetti.style.cssText = `
+      position: fixed;
+      top: -10px;
+      left: ${Math.random() * 100}vw;
+      width: 10px;
+      height: 10px;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      z-index: 9999;
+      pointer-events: none;
+      animation: confetti-fall ${2 + Math.random() * 3}s linear forwards;
+    `;
+    
+    document.body.appendChild(confetti);
+    
+    setTimeout(() => {
+      confetti.remove();
+    }, 5000);
+  }
+}
+</script>
+
+<style>
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.font-monospace {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+@media print {
+  .btn, .alert-info, nav, footer {
+    display: none !important;
+  }
+  
+  .card {
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+  }
+}
+
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.bg-success {
+  background: linear-gradient(45deg, #28a745, #20c997) !important;
+}
+</style>
