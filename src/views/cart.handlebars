@@ -106,7 +106,10 @@
                       </div>
                       <button class="btn btn-outline-danger btn-sm mt-2" 
                               onclick="removeFromCart('{{../cartId}}', '{{this.product._id}}')"
-                              title="Eliminar producto">
+                              title="Eliminar producto"
+                              data-debug-cart-id="{{../cartId}}"
+                              data-debug-product-id="{{this.product._id}}"
+                              data-debug-product-title="{{this.product.title}}">
                         <i class="bi bi-trash"></i> Quitar
                       </button>
                     </div>
@@ -290,6 +293,13 @@ async function updateQuantity(cartId, productId, currentQuantity, change) {
 }
 
 async function removeFromCart(cartId, productId) {
+  console.log('DEBUG removeFromCart - cartId:', cartId, 'productId:', productId);
+  
+  if (!productId || productId === 'undefined' || productId.trim() === '') {
+    showNotification('Error: ID de producto no válido', 'danger');
+    return;
+  }
+  
   if (!confirm('¿Estás seguro de eliminar este producto del carrito?')) return;
 
   try {
@@ -337,7 +347,7 @@ async function clearCart(cartId) {
 
 function saveForLater() {
   showNotification('Carrito guardado en favoritos', 'info');
- 
+}
 
 function confirmPurchase() {
   const total = document.getElementById('total').textContent;
@@ -444,7 +454,6 @@ document.addEventListener('DOMContentLoaded', function() {
   };
   localStorage.setItem('currentCart', JSON.stringify(cartData));
 });
-}
 </script>
 
 

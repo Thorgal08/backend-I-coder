@@ -30,20 +30,13 @@
           {{#each products}}
           <div class="list-group-item border-0 py-3">
             <div class="row align-items-center">
-              <!-- Imagen del producto -->
+              <!-- Icono del producto -->
               <div class="col-md-2 col-3">
-                <div class="product-image-container">
-                  {{#if this.thumbnails}}
-                    <img src="{{this.thumbnails}}" 
-                         class="img-fluid rounded border" 
-                         style="width: 80px; height: 80px; object-fit: cover;"
-                         alt="{{this.title}}">
-                  {{else}}
-                    <div class="bg-light border rounded d-flex align-items-center justify-content-center" 
-                         style="width: 80px; height: 80px;">
-                      <i class="bi bi-image text-muted fs-4"></i>
-                    </div>
-                  {{/if}}
+                <div class="product-icon-container">
+                  <div class="bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded d-flex align-items-center justify-content-center" 
+                       style="width: 80px; height: 80px;">
+                    <i class="bi bi-box text-primary fs-2"></i>
+                  </div>
                 </div>
               </div>
               
@@ -170,19 +163,105 @@
 <script>
 function addToCart(productId, buttonElement) {
   // Función para agregar al carrito
-  
-  // Efecto visual
-  if (buttonElement) {
-    const originalText = buttonElement.innerHTML;
-    buttonElement.innerHTML = '<i class="bi bi-check"></i> ¡Agregado!';
-    buttonElement.classList.add('btn-success');
-    setTimeout(() => {
-      buttonElement.innerHTML = originalText;
-      buttonElement.classList.remove('btn-success');
-    }, 2000);
+  addProductToCart(productId, buttonElement);
+}
+
+async function addProductToCart(productId, buttonElement) {
+  try {
+    // Obtener o crear carrito
+    const cartId = await getOrCreateCart();
+    if (!cartId) {
+      showNotification('Error al crear carrito', 'danger');
+      return;
+    }
+    
+    // Agregar producto al carrito
+    const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      
+      // Efecto visual
+      if (buttonElement) {
+        const originalText = buttonElement.innerHTML;
+        buttonElement.innerHTML = '<i class="bi bi-check"></i> ¡Agregado!';
+        buttonElement.classList.add('btn-success');
+        setTimeout(() => {
+          buttonElement.innerHTML = originalText;
+          buttonElement.classList.remove('btn-success');
+        }, 2000);
+      }
+      
+      showNotification('Producto agregado al carrito exitosamente', 'success');
+    } else {
+      showNotification('Error agregando producto al carrito', 'danger');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showNotification('Error de conexión', 'danger');
   }
+}
+
+async function getOrCreateCart() {
+  try {
+    // Intentar obtener carrito existente del localStorage
+    const savedCartId = localStorage.getItem('cartId');
+    if (savedCartId) {
+      // Verificar si el carrito existe
+      const checkResponse = await fetch(`/api/carts/${savedCartId}`);
+      if (checkResponse.ok) {
+        return savedCartId;
+      }
+    }
+    
+    // Crear nuevo carrito
+    const response = await fetch('/api/carts', {
+      method: 'POST'
+    });
+    
+    if (response.ok) {
+      const newCart = await response.json();
+      localStorage.setItem('cartId', newCart._id);
+      return newCart._id;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error obteniendo carrito:', error);
+    return null;
+  }
+}
+
+// Función para mostrar notificaciones
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.className = `alert alert-${type} position-fixed`;
+  notification.style.cssText = `
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  `;
+  notification.innerHTML = `
+    <div class="d-flex align-items-center">
+      <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+      ${message}
+    </div>
+  `;
   
-  alert('¡Producto agregado al carrito! Ve a /products para la funcionalidad completa.');
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.remove();
+    }
+  }, 3000);
 }
 
 function viewProduct(productId) {
@@ -193,11 +272,11 @@ function viewProduct(productId) {
 
 <!-- Estilos adicionales -->
 <style>
-.product-image-container {
+.product-icon-container {
   transition: transform 0.2s ease;
 }
 
-.product-image-container:hover {
+.product-icon-container:hover {
   transform: scale(1.05);
 }
 

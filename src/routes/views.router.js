@@ -120,7 +120,16 @@ router.get('/cart', async (req, res) => {
       // No hay carritos, crear uno nuevo
       cart = await cartManager.createCart();
     } else {
-      cart = carts[0];
+      // Buscar un carrito con productos válidos (sin referencias rotas)
+      cart = carts.find(c => 
+        c.products.length > 0 && 
+        c.products.every(item => item.product && item.product._id)
+      );
+      
+      // Si no hay carritos válidos con productos, usar el primero disponible
+      if (!cart) {
+        cart = carts[0];
+      }
     }
     
     res.render('cart', { cart, cartId: cart._id });

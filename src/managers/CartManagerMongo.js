@@ -15,9 +15,16 @@ class CartManager {
 
   async getAllCarts() {
     try {
-      return await Cart.find()
+      const carts = await Cart.find()
         .populate('products.product')
         .lean();
+      
+      // Filtrar productos que no existen (null) en todos los carritos
+      carts.forEach(cart => {
+        cart.products = cart.products.filter(item => item.product !== null);
+      });
+      
+      return carts;
     } catch (error) {
       console.error('Error obteniendo carritos:', error);
       return [];
@@ -26,9 +33,16 @@ class CartManager {
 
   async getCartById(id) {
     try {
-      return await Cart.findById(id)
+      const cart = await Cart.findById(id)
         .populate('products.product')
         .lean();
+      
+      if (cart) {
+        // Filtrar productos que no existen (null)
+        cart.products = cart.products.filter(item => item.product !== null);
+      }
+      
+      return cart;
     } catch (error) {
       console.error('Error obteniendo carrito:', error);
       return null;

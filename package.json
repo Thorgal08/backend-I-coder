@@ -7,9 +7,13 @@
     "socket.io": "^4.8.1"
   },
   "scripts": {
-    "dev": "nodemon src/app.js",
+    "dev": "npx nodemon src/app.js",
     "start": "node src/app.js",
+    "stop": "taskkill /f /im node.exe /t",
     "migrate": "node src/scripts/migrate.js",
     "add-samples": "node src/scripts/addSampleProducts.js"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }

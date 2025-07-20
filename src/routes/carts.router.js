@@ -24,8 +24,8 @@ router.get('/:cid', async (req, res) => {
   }
 });
 
-// POST /api/carts/:cid/product/:pid - Agregar producto al carrito
-router.post('/:cid/product/:pid', async (req, res) => {
+// POST /api/carts/:cid/products/:pid - Agregar producto al carrito
+router.post('/:cid/products/:pid', async (req, res) => {
   try {
     const { cid, pid } = req.params;
     const { quantity = 1 } = req.body;

@@ -36,12 +36,14 @@ app.engine('handlebars', handlebars.engine({
     calculateSubtotal: (products) => {
       if (!products || !Array.isArray(products)) return 0;
       return products.reduce((total, item) => {
+        if (!item || !item.product || !item.product.price) return total;
         return total + (item.product.price * item.quantity);
       }, 0);
     },
     calculateCartTotal: (products) => {
       if (!products || !Array.isArray(products)) return 0;
       return products.reduce((total, item) => {
+        if (!item || !item.product || !item.product.price) return total;
         return total + (item.product.price * item.quantity);
       }, 0);
     },
