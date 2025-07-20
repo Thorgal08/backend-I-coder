@@ -29,6 +29,7 @@ router.get('/products', async (req, res) => {
     };
 
     const result = await productManager.getProducts(options);
+    const categories = await productManager.getCategories();
     
     if (result.status === 'error') {
       return res.status(500).render('error', { message: result.message });
@@ -36,6 +37,7 @@ router.get('/products', async (req, res) => {
 
     res.render('products', { 
       products: result.payload,
+      categories: categories,
       pagination: {
         totalPages: result.totalPages,
         currentPage: result.page,

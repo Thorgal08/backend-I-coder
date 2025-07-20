@@ -62,6 +62,5 @@ function deleteProduct(id) {
     console.error('ID del producto no válido');
     return;
   }
-  console.log('Eliminando producto con ID:', id);
   socket.emit('deleteProduct', id);
 }

@@ -25,10 +25,11 @@ class ProductManager {
       }
       
       if (category) {
-        filter.category = { $regex: category, $options: 'i' };
+        const normalizedCategory = category.trim();
+        filter.category = { $regex: normalizedCategory, $options: 'i' };
       }
       
-      if (status !== undefined) {
+      if (status !== undefined && status !== null && status !== '') {
         filter.status = status === 'true';
       }
 
@@ -47,7 +48,6 @@ class ProductManager {
         .skip((parseInt(page) - 1) * parseInt(limit))
         .lean();
 
-      // Obtener total de documentos para paginación
       const totalDocs = await Product.countDocuments(filter);
       const totalPages = Math.ceil(totalDocs / parseInt(limit));
       const currentPage = parseInt(page);
@@ -85,6 +85,17 @@ class ProductManager {
         status: 'error',
         message: error.message
       };
+    }
+  }
+
+  // Obtener categorías disponibles
+  async getCategories() {
+    try {
+      const categories = await Product.distinct('category');
+      return categories.filter(cat => cat && cat.trim() !== '');
+    } catch (error) {
+      console.error('Error obteniendo categorías:', error);
+      return [];
     }
   }
 

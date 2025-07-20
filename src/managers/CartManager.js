@@ -19,10 +19,8 @@ class CartManager {
     try {
       const data = await fsp.readFile(this.path, 'utf-8');
       const parsed = JSON.parse(data);
-      console.log("🔍 _readFile() devuelve:", parsed);
       return parsed;
     } catch (error) {
-      console.log("Error leyendo el archivo, devolviendo []");
       return [];
     }
   }

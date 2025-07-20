@@ -7,17 +7,17 @@ const connectDB = async () => {
     
     await mongoose.connect(mongoURI);
     
-    console.log('✅ MongoDB conectado exitosamente');
-    console.log(`🌐 Base de datos: ${mongoose.connection.name}`);
+    console.log('MongoDB conectado exitosamente');
+    console.log(`Base de datos: ${mongoose.connection.name}`);
   } catch (error) {
-    console.error('❌ Error conectando a MongoDB:', error.message);
+    console.error('Error conectando a MongoDB:', error.message);
     process.exit(1);
   }
 };
 
 // Eventos de conexión
 mongoose.connection.on('disconnected', () => {
-  console.log('⚠️ MongoDB desconectado');
+  console.log('MongoDB desconectado');
 });
 
 mongoose.connection.on('error', (err) => {

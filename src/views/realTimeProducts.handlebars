@@ -1,72 +1,267 @@
-<div class="container py-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="fw-bold text-primary">Productos en tiempo real</h1>
-    <a href="/" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left"></i> Lista Estática
-    </a>
+<div class="container-fluid py-4">
+  <!-- Header del panel de administración -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="h3 mb-1">⚡ Administración en Tiempo Real</h1>
+          <p class="text-muted mb-0">Gestiona tu inventario en vivo</p>
+        </div>
+        <div class="btn-group" role="group">
+          <a href="/" class="btn btn-outline-primary">
+            <i class="bi bi-list-ul"></i> Vista Lista
+          </a>
+          <a href="/products" class="btn btn-outline-success">
+            <i class="bi bi-cart"></i> Tienda
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <form id="product-form" class="row row-cols-1 row-cols-md-3 g-4 mb-5 bg-white p-4 rounded shadow-sm">
-    <div class="col">
-      <label class="form-label">Título</label>
-      <input type="text" name="title" placeholder="Título" required class="form-control" />
+  <!-- Formulario de nuevo producto -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+          <h5 class="text-white mb-0">
+            <i class="bi bi-plus-circle"></i> Agregar Nuevo Producto
+          </h5>
+        </div>
+        <div class="card-body">
+          <form id="product-form" class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">
+                <i class="bi bi-card-text"></i> Título del Producto
+              </label>
+              <input type="text" name="title" placeholder="Ingresa el nombre del producto" required class="form-control" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">
+                <i class="bi bi-file-text"></i> Descripción
+              </label>
+              <input type="text" name="description" placeholder="Describe las características" required class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-bold">
+                <i class="bi bi-currency-dollar"></i> Precio
+              </label>
+              <input type="number" name="price" placeholder="0.00" required class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-bold">
+                <i class="bi bi-upc-scan"></i> Código
+              </label>
+              <input type="text" name="code" placeholder="SKU-001" required class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-bold">
+                <i class="bi bi-box-seam"></i> Stock
+              </label>
+              <input type="number" name="stock" placeholder="0" required class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-bold">
+                <i class="bi bi-tag"></i> Categoría
+              </label>
+              <input type="text" name="category" placeholder="Electrónicos" required class="form-control" />
+            </div>
+            <div class="col-12 text-end">
+              <button type="submit" class="btn btn-success btn-lg">
+                <i class="bi bi-plus-lg"></i> Agregar Producto
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-    <div class="col">
-      <label class="form-label">Descripción</label>
-      <input type="text" name="description" placeholder="Descripción" required class="form-control" />
-    </div>
-    <div class="col">
-      <label class="form-label">Precio</label>
-      <input type="number" name="price" placeholder="Precio" required class="form-control" />
-    </div>
-    <div class="col">
-      <label class="form-label">Código</label>
-      <input type="text" name="code" placeholder="Código" required class="form-control" />
-    </div>
-    <div class="col">
-      <label class="form-label">Stock</label>
-      <input type="number" name="stock" placeholder="Stock" required class="form-control" />
-    </div>
-    <div class="col">
-      <label class="form-label">Categoría</label>
-      <input type="text" name="category" placeholder="Categoría" required class="form-control" />
-    </div>
-    <div class="col d-flex align-items-end">
-      <button type="submit" class="btn btn-success w-100">Agregar</button>
-    </div>
-  </form>
+  </div>
 
-  <div class="row g-4" id="product-list">
-    {{#each products}}
-    <div class="col-md-4">
-      <div class="card shadow-sm h-100 border-0 product-card">
-        <div class="card-body d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="card-title mb-0">{{this.title}}</h5>
-            <span class="badge bg-primary fs-6">${{this.price}}</span>
+  <!-- Lista de productos administrables -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-database"></i> Inventario Actual
+            </h5>
+            <span class="badge bg-primary fs-6">{{products.length}} productos</span>
           </div>
-          <p class="card-text text-muted mb-2">{{this.description}}</p>
-          <ul class="list-unstyled mb-3">
-            <li><span class="badge bg-info text-dark">Stock: {{this.stock}}</span></li>
-            <li><span class="badge bg-secondary">Categoría: {{this.category}}</span></li>
-            <li><span class="badge bg-warning text-dark">Código: {{this.code}}</span></li>
-          </ul>
-          <div class="mt-auto d-flex justify-content-between align-items-center">
-            {{#if this.status}}
-              <span class="badge bg-success">Activo</span>
-            {{else}}
-              <span class="badge bg-danger">Inactivo</span>
-            {{/if}}
-            <button onclick="deleteProduct({{this.id}})" class="btn btn-danger btn-sm">
-              <i class="bi bi-trash"></i> Eliminar
-            </button>
+        </div>
+        <div class="card-body p-0">
+          <div id="product-list" class="list-group list-group-flush">
+            {{#each products}}
+            <div class="list-group-item border-0" data-product-id="{{this.id}}">
+              <div class="row align-items-center py-2">
+                <!-- Información básica -->
+                <div class="col-md-5">
+                  <div class="d-flex align-items-center">
+                    <div class="product-icon me-3">
+                      <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
+                           style="width: 50px; height: 50px;">
+                        <i class="bi bi-box text-white fs-5"></i>
+                      </div>
+                    </div>
+                    <div>
+                      <h6 class="mb-1 fw-bold">{{this.title}}</h6>
+                      <p class="mb-1 text-muted small">{{this.description}}</p>
+                      <div class="meta-info">
+                        <span class="badge bg-light text-dark border me-1">
+                          <i class="bi bi-upc-scan"></i> {{this.code}}
+                        </span>
+                        <span class="badge bg-info text-white">
+                          <i class="bi bi-tag"></i> {{this.category}}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Precio -->
+                <div class="col-md-2 text-center">
+                  <div class="price-display">
+                    <div class="fs-4 fw-bold text-success">${{this.price}}</div>
+                    <small class="text-muted">Precio unitario</small>
+                  </div>
+                </div>
+                
+                <!-- Stock -->
+                <div class="col-md-2 text-center">
+                  {{#if (gt this.stock 20)}}
+                    <span class="badge bg-success p-2">
+                      <i class="bi bi-check-circle"></i> {{this.stock}} unidades
+                    </span>
+                  {{else if (gt this.stock 5)}}
+                    <span class="badge bg-warning text-dark p-2">
+                      <i class="bi bi-exclamation-triangle"></i> {{this.stock}} unidades
+                    </span>
+                  {{else if (gt this.stock 0)}}
+                    <span class="badge bg-danger p-2">
+                      <i class="bi bi-exclamation-circle"></i> {{this.stock}} unidades
+                    </span>
+                  {{else}}
+                    <span class="badge bg-secondary p-2">
+                      <i class="bi bi-x-circle"></i> Sin stock
+                    </span>
+                  {{/if}}
+                </div>
+                
+                <!-- Estado y acciones -->
+                <div class="col-md-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="product-status">
+                      {{#if this.status}}
+                        <span class="badge bg-success">
+                          <i class="bi bi-check-circle"></i> Disponible
+                        </span>
+                      {{else}}
+                        <span class="badge bg-danger">
+                          <i class="bi bi-pause-circle"></i> No disponible
+                        </span>
+                      {{/if}}
+                    </div>
+                    <div class="action-buttons">
+                      <button onclick="editProduct('{{this.id}}')" class="btn btn-outline-primary btn-sm me-1">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button onclick="deleteProduct('{{this.id}}')" class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {{/each}}
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <div class="row text-center">
+            <div class="col-md-4">
+              <strong class="text-success">✓</strong>
+              <small class="text-muted d-block">Productos Activos</small>
+            </div>
+            <div class="col-md-4">
+              <strong class="text-warning">📦</strong>
+              <small class="text-muted d-block">Total en Stock</small>
+            </div>
+            <div class="col-md-4">
+              <strong class="text-info">💰</strong>
+              <small class="text-muted d-block">Valor Total</small>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    {{/each}}
   </div>
 </div>
+
+<!-- Scripts para funcionalidad adicional -->
+<script>
+function editProduct(productId) {
+  // Función para editar producto
+  alert('Función de edición en desarrollo');
+}
+
+function deleteProduct(productId) {
+  if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+    // La función de eliminación ya existe en socket-client.js
+  }
+}
+</script>
+
+<!-- Estilos adicionales -->
+<style>
+.list-group-item {
+  transition: all 0.2s ease;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+  transform: translateX(3px);
+}
+
+.product-icon {
+  transition: transform 0.2s ease;
+}
+
+.product-icon:hover {
+  transform: scale(1.1);
+}
+
+.price-display {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.action-buttons button {
+  transition: all 0.2s ease;
+}
+
+.action-buttons button:hover {
+  transform: scale(1.1);
+}
+
+.card-header.bg-gradient {
+  border: none;
+}
+
+.form-control:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+@media (max-width: 768px) {
+  .col-md-3, .col-md-2 {
+    margin-top: 1rem;
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+}
+</style>
 
 <!-- Bootstrap Icons (opcional para el ícono de eliminar) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">

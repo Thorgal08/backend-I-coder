@@ -44,7 +44,7 @@
               <div class="col-6">
                 <small class="text-muted">Creado:</small>
                 <div class="text-muted" style="font-size: 0.9rem;">
-                  {{formatDate this.createdAt}}
+                  {{this.createdAt}}
                 </div>
               </div>
             </div>
@@ -59,7 +59,7 @@
                     <div class="fw-bold" style="font-size: 0.9rem;">{{this.product.title}}</div>
                     <small class="text-muted">${{this.product.price}} x {{this.quantity}}</small>
                   </div>
-                  <span class="badge bg-primary">${{multiply this.product.price this.quantity}}</span>
+                  <span class="badge bg-primary item-total" data-price="{{this.product.price}}" data-quantity="{{this.quantity}}">${{this.product.price}}</span>
                 </div>
                 {{/each}}
               </div>
@@ -68,7 +68,7 @@
               <div class="border-top pt-3">
                 <div class="d-flex justify-content-between align-items-center">
                   <span class="fw-bold">Total del Carrito:</span>
-                  <span class="h5 text-success mb-0">${{calculateCartTotal this.products}}</span>
+                  <span class="h5 text-success mb-0 cart-total">$0.00</span>
                 </div>
               </div>
             {{else}}
@@ -197,8 +197,34 @@ function showAlert(message, type) {
   }, 5000);
 }
 
-// Formatear fecha
+// Formatear fecha y calcular totales
 document.addEventListener('DOMContentLoaded', function() {
+  // Calcular subtotales de items
+  const itemTotals = document.querySelectorAll('.item-total');
+  itemTotals.forEach(element => {
+    const price = parseFloat(element.dataset.price) || 0;
+    const quantity = parseInt(element.dataset.quantity) || 0;
+    const total = (price * quantity).toFixed(2);
+    element.textContent = `$${total}`;
+  });
+  
+  // Calcular totales de carritos
+  const cards = document.querySelectorAll('.card');
+  cards.forEach(card => {
+    const itemTotalsInCard = card.querySelectorAll('.item-total');
+    let cartTotal = 0;
+    itemTotalsInCard.forEach(item => {
+      const price = parseFloat(item.dataset.price) || 0;
+      const quantity = parseInt(item.dataset.quantity) || 0;
+      cartTotal += price * quantity;
+    });
+    
+    const cartTotalElement = card.querySelector('.cart-total');
+    if (cartTotalElement) {
+      cartTotalElement.textContent = `$${cartTotal.toFixed(2)}`;
+    }
+  });
+  
   const dateElements = document.querySelectorAll('[data-date]');
   dateElements.forEach(element => {
     const date = new Date(element.dataset.date);

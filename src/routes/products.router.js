@@ -27,6 +27,19 @@ module.exports = function(io) {
     }
   });
 
+  // GET /api/products/categories - Obtener categorías disponibles
+  router.get('/categories', async (req, res) => {
+    try {
+      const categories = await productManager.getCategories();
+      res.json({ status: 'success', categories });
+    } catch (error) {
+      res.status(500).json({ 
+        status: 'error', 
+        message: error.message 
+      });
+    }
+  });
+
   // GET /api/products/:pid - Obtener producto por ID
   router.get('/:pid', async (req, res) => {
     const pid = req.params.pid;
