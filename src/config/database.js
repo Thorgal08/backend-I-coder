@@ -21,7 +21,7 @@ mongoose.connection.on('disconnected', () => {
 });
 
 mongoose.connection.on('error', (err) => {
-  console.error('❌ Error de MongoDB:', err);
+  console.error('Error de MongoDB:', err);
 });
 
 module.exports = connectDB;
