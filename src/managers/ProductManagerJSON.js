@@ -2,7 +2,7 @@ const fs = require('fs');
 const fsp = require('fs').promises;
 const path = require('path');
 
-// Manager que funciona con archivos JSON (fallback si MongoDB no está disponible)
+
 class ProductManagerJSON {
   constructor() {
     this.path = path.resolve(__dirname, '../data/products.json');

@@ -40,7 +40,7 @@ class ProductManager {
     const newId = products.length > 0 ? products[products.length - 1].id + 1 : 1;
     const newProduct = { id: newId, ...product };
     products.push(newProduct);
-    await this._writeFile(products); // 👈 AQUÍ FALLABA PORQUE this.path ERA UNDEFINED
+    await this._writeFile(products); 
     return newProduct;
   }
 

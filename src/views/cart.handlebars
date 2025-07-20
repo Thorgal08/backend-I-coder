@@ -337,8 +337,7 @@ async function clearCart(cartId) {
 
 function saveForLater() {
   showNotification('Carrito guardado en favoritos', 'info');
-  // Aquí puedes implementar la lógica para guardar el carrito
-}
+ 
 
 function confirmPurchase() {
   const total = document.getElementById('total').textContent;
@@ -448,7 +447,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 </script>
 
-<!-- Script adicional para cálculos -->
+
 <script>
 function calculateAllSubtotals() {
   const subtotalElements = document.querySelectorAll('.subtotal-value');
