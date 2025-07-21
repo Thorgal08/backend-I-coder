@@ -90,24 +90,28 @@
   
   <!-- Script global para carrito -->
   <script>
-    // Función para obtener o crear carrito único
+    // Función para obtener carrito por defecto (sin localStorage)
     async function getOrCreateCart() {
-      let currentCartId = localStorage.getItem('currentCartId');
+      const defaultCartId = '687dac974264b0fa9e14dba6';
       
-      if (!currentCartId) {
-        try {
-          const response = await fetch('/api/carts', { method: 'POST' });
-          if (response.ok) {
-            const cart = await response.json();
-            currentCartId = cart._id;
-            localStorage.setItem('currentCartId', currentCartId);
-          }
-        } catch (error) {
-          console.error('Error creando carrito:', error);
+      try {
+        // Verificar que el carrito por defecto existe
+        const response = await fetch(`/api/carts/${defaultCartId}`);
+        if (response.ok) {
+          return defaultCartId;
         }
+        
+        // Si no existe, crear uno nuevo
+        const createResponse = await fetch('/api/carts', { method: 'POST' });
+        if (createResponse.ok) {
+          const cart = await createResponse.json();
+          return cart._id;
+        }
+      } catch (error) {
+        console.error('Error obteniendo carrito:', error);
       }
       
-      return currentCartId;
+      return defaultCartId;
     }
 
     // Inicializar carrito en navbar
@@ -146,5 +150,8 @@
       }
     }
   </script>
+  
+  <!-- Bootstrap JavaScript Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

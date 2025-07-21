@@ -4,154 +4,142 @@
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center">
         <div>
-          <h1 class="h3 mb-1">�️ Catálogo de Productos</h1>
-          <p class="text-muted mb-0">{{products.length}} productos disponibles</p>
+          <h1 class="h3 mb-1">🛍️ Catálogo de Productos</h1>
+          <p class="text-muted mb-0">Mostrando <span id="product-count">{{products.length}}</span> productos disponibles</p>
         </div>
-        <div class="btn-group" role="group">
-          <a href="/products" class="btn btn-primary">
-            <i class="bi bi-cart-plus"></i> Ir de Compras
-          </a>
-          <a href="/realtimeproducts" class="btn btn-outline-primary">
-            <i class="bi bi-tools"></i> Administrar
-          </a>
-          <a href="/cart" class="btn btn-success">
-            <i class="bi bi-bag"></i> Mi Carrito
-          </a>
+        <div class="d-flex gap-2">
+          <!-- Barra de búsqueda -->
+          <div class="input-group" style="width: 300px;">
+            <input type="text" class="form-control" id="searchInput" placeholder="Buscar productos...">
+            <button class="btn btn-outline-secondary" type="button" onclick="searchProducts(document.getElementById('searchInput').value)">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+          
+          <!-- Filtro por categoría -->
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="categoryFilter" onclick="toggleDropdown()" aria-expanded="false">
+              <i class="bi bi-funnel"></i> <span id="current-category">Todas las categorías</span>
+            </button>
+            <ul class="dropdown-menu" id="category-list">
+              <li><a class="dropdown-item" href="#" onclick="filterByCategory('all'); return false;">Todas las categorías</a></li>
+              <!-- Las categorías se llenarán dinámicamente -->
+            </ul>
+          </div>
+          
+          <div class="btn-group" role="group">
+            <a href="/products" class="btn btn-primary">
+              <i class="bi bi-cart-plus"></i> Ir de Compras
+            </a>
+            <a href="/realtimeproducts" class="btn btn-outline-primary">
+              <i class="bi bi-tools"></i> Administrar
+            </a>
+            <a href="/cart/687dac974264b0fa9e14dba6" class="btn btn-success">
+              <i class="bi bi-bag"></i> Mi Carrito
+            </a>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Lista de productos estilo e-commerce -->
+  <!-- Lista de productos -->
   <div class="row">
     <div class="col-12">
       <div class="card shadow-sm border-0">
-        <div class="list-group list-group-flush">
-          {{#each products}}
-          <div class="list-group-item border-0 py-3">
-            <div class="row align-items-center">
-              <!-- Icono del producto -->
-              <div class="col-md-2 col-3">
-                <div class="product-icon-container">
-                  <div class="bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded d-flex align-items-center justify-content-center" 
-                       style="width: 80px; height: 80px;">
-                    <i class="bi bi-box text-primary fs-2"></i>
+        <div class="card-header bg-light">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-grid"></i> Productos Disponibles
+            </h5>
+            <span class="badge bg-primary fs-6">{{products.length}} productos</span>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div id="product-list" class="list-group list-group-flush">
+            {{#each products}}
+            <div class="list-group-item border-0" data-product-id="{{this.id}}">
+              <div class="row align-items-center py-2">
+                <!-- Información básica -->
+                <div class="col-md-5">
+                  <div class="d-flex align-items-center">
+                    <div class="product-icon me-3">
+                      <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
+                           style="width: 50px; height: 50px;">
+                        <i class="bi bi-box text-white fs-5"></i>
+                      </div>
+                    </div>
+                    <div>
+                      <h6 class="mb-1 fw-bold">{{this.title}}</h6>
+                      <p class="mb-1 text-muted small">{{this.description}}</p>
+                      <div class="meta-info">
+                        <span class="badge bg-light text-dark border me-1">
+                          <i class="bi bi-upc-scan"></i> {{this.code}}
+                        </span>
+                        <span class="badge bg-info text-white">
+                          <i class="bi bi-tag"></i> {{this.category}}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              
-              <!-- Información del producto -->
-              <div class="col-md-5 col-9">
-                <div class="product-info">
-                  <h5 class="product-title mb-1 fw-bold">{{this.title}}</h5>
-                  <p class="product-description text-muted mb-2 small">{{this.description}}</p>
-                  <div class="product-meta">
-                    <span class="badge bg-light text-dark border me-1">
-                      <i class="bi bi-upc-scan"></i> {{this.code}}
+                
+                <!-- Precio -->
+                <div class="col-md-2 text-center">
+                  <div class="price-display">
+                    <div class="fs-4 fw-bold text-success">${{this.price}}</div>
+                    <small class="text-muted">Precio unitario</small>
+                  </div>
+                </div>
+                
+                <!-- Stock -->
+                <div class="col-md-2 text-center">
+                  {{#if (gt this.stock 20)}}
+                    <span class="badge bg-success p-2">
+                      <i class="bi bi-check-circle"></i> {{this.stock}} unidades
                     </span>
-                    <span class="badge bg-info text-white me-1">
-                      <i class="bi bi-tag"></i> {{this.category}}
+                  {{else if (gt this.stock 5)}}
+                    <span class="badge bg-warning text-dark p-2">
+                      <i class="bi bi-exclamation-triangle"></i> {{this.stock}} unidades
                     </span>
-                  </div>
+                  {{else if (gt this.stock 0)}}
+                    <span class="badge bg-danger p-2">
+                      <i class="bi bi-exclamation-circle"></i> {{this.stock}} unidades
+                    </span>
+                  {{else}}
+                    <span class="badge bg-secondary p-2">
+                      <i class="bi bi-x-circle"></i> Sin stock
+                    </span>
+                  {{/if}}
                 </div>
-              </div>
-              
-              <!-- Precio y stock -->
-              <div class="col-md-2 col-6 text-center">
-                <div class="product-price">
-                  <div class="price-current fs-4 fw-bold text-success">
-                    ${{this.price}}
-                  </div>
-                  <div class="stock-info mt-1">
-                    {{#if (gt this.stock 20)}}
-                      <span class="badge bg-success">
-                        <i class="bi bi-check-circle"></i> En Stock ({{this.stock}})
-                      </span>
-                    {{else if (gt this.stock 5)}}
-                      <span class="badge bg-warning text-dark">
-                        <i class="bi bi-exclamation-triangle"></i> Pocas unidades ({{this.stock}})
-                      </span>
-                    {{else if (gt this.stock 0)}}
-                      <span class="badge bg-danger">
-                        <i class="bi bi-exclamation-circle"></i> Últimas unidades ({{this.stock}})
-                      </span>
-                    {{else}}
-                      <span class="badge bg-secondary">
-                        <i class="bi bi-x-circle"></i> Sin stock
-                      </span>
-                    {{/if}}
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Estado y acciones -->
-              <div class="col-md-3 col-6">
-                <div class="d-flex flex-column align-items-end">
-                  <div class="product-status mb-2">
-                    {{#if this.status}}
-                      <span class="badge bg-success">
-                        <i class="bi bi-check-circle"></i> Disponible
-                      </span>
-                    {{else}}
-                      <span class="badge bg-danger">
-                        <i class="bi bi-pause-circle"></i> No disponible
-                      </span>
-                    {{/if}}
-                  </div>
-                  <div class="product-actions">
-                    {{#if this.status}}
-                      <button class="btn btn-primary btn-sm me-1" onclick="addToCart('{{this._id}}', this)">
+                
+                <!-- Estado y acciones -->
+                <div class="col-md-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="product-status">
+                      {{#if this.status}}
+                        <span class="badge bg-success">
+                          <i class="bi bi-check-circle"></i> Disponible
+                        </span>
+                      {{else}}
+                        <span class="badge bg-danger">
+                          <i class="bi bi-pause-circle"></i> No disponible
+                        </span>
+                      {{/if}}
+                    </div>
+                    <div class="action-buttons">
+                      <a href="/products/{{this.id}}" class="btn btn-outline-info btn-sm me-1">
+                        <i class="bi bi-eye"></i> Ver
+                      </a>
+                      <button onclick="addToCart('{{this.id}}')" class="btn btn-success btn-sm">
                         <i class="bi bi-cart-plus"></i> Agregar
                       </button>
-                    {{/if}}
-                    <button class="btn btn-outline-secondary btn-sm" onclick="viewProduct('{{this._id}}')">
-                      <i class="bi bi-eye"></i> Ver
-                    </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          {{/each}}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Footer con estadísticas -->
-  <div class="row mt-4">
-    <div class="col-12">
-      <div class="card bg-light border-0">
-        <div class="card-body">
-          <div class="row text-center">
-            <div class="col-md-3 col-6">
-              <div class="stat-item">
-                <i class="bi bi-box-seam text-primary fs-1"></i>
-                <h5 class="mt-2 mb-0">{{products.length}}</h5>
-                <small class="text-muted">Total Productos</small>
-              </div>
-            </div>
-            <div class="col-md-3 col-6">
-              <div class="stat-item">
-                <i class="bi bi-tags text-success fs-1"></i>
-                <h5 class="mt-2 mb-0">📂</h5>
-                <small class="text-muted">Categorías</small>
-              </div>
-            </div>
-            <div class="col-md-3 col-6">
-              <div class="stat-item">
-                <i class="bi bi-check-circle text-info fs-1"></i>
-                <h5 class="mt-2 mb-0">✓</h5>
-                <small class="text-muted">Activos</small>
-              </div>
-            </div>
-            <div class="col-md-3 col-6">
-              <div class="stat-item">
-                <i class="bi bi-database text-warning fs-1"></i>
-                <h5 class="mt-2 mb-0">MongoDB</h5>
-                <small class="text-muted">Base de Datos</small>
-              </div>
-            </div>
+            {{/each}}
           </div>
         </div>
       </div>
@@ -159,175 +147,217 @@
   </div>
 </div>
 
-<!-- Scripts para interactividad -->
-<script>
-function addToCart(productId, buttonElement) {
-  // Función para agregar al carrito
-  addProductToCart(productId, buttonElement);
-}
-
-async function addProductToCart(productId, buttonElement) {
-  try {
-    // Obtener o crear carrito
-    const cartId = await getOrCreateCart();
-    if (!cartId) {
-      showNotification('Error al crear carrito', 'danger');
-      return;
-    }
-    
-    // Agregar producto al carrito
-    const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    if (response.ok) {
-      const result = await response.json();
-      
-      // Efecto visual
-      if (buttonElement) {
-        const originalText = buttonElement.innerHTML;
-        buttonElement.innerHTML = '<i class="bi bi-check"></i> ¡Agregado!';
-        buttonElement.classList.add('btn-success');
-        setTimeout(() => {
-          buttonElement.innerHTML = originalText;
-          buttonElement.classList.remove('btn-success');
-        }, 2000);
-      }
-      
-      showNotification('Producto agregado al carrito exitosamente', 'success');
-    } else {
-      showNotification('Error agregando producto al carrito', 'danger');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    showNotification('Error de conexión', 'danger');
-  }
-}
-
-async function getOrCreateCart() {
-  try {
-    // Intentar obtener carrito existente del localStorage
-    const savedCartId = localStorage.getItem('cartId');
-    if (savedCartId) {
-      // Verificar si el carrito existe
-      const checkResponse = await fetch(`/api/carts/${savedCartId}`);
-      if (checkResponse.ok) {
-        return savedCartId;
-      }
-    }
-    
-    // Crear nuevo carrito
-    const response = await fetch('/api/carts', {
-      method: 'POST'
-    });
-    
-    if (response.ok) {
-      const newCart = await response.json();
-      localStorage.setItem('cartId', newCart._id);
-      return newCart._id;
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('Error obteniendo carrito:', error);
-    return null;
-  }
-}
-
-// Función para mostrar notificaciones
-function showNotification(message, type = 'info') {
-  const notification = document.createElement('div');
-  notification.className = `alert alert-${type} position-fixed`;
-  notification.style.cssText = `
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
-    min-width: 300px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  `;
-  notification.innerHTML = `
-    <div class="d-flex align-items-center">
-      <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
-      ${message}
-    </div>
-  `;
-  
-  document.body.appendChild(notification);
-  
-  setTimeout(() => {
-    if (notification.parentNode) {
-      notification.remove();
-    }
-  }, 3000);
-}
-
-function viewProduct(productId) {
-  // Función para ver producto
-  window.location.href = `/products/${productId}`;
-}
-</script>
-
 <!-- Estilos adicionales -->
 <style>
-.product-icon-container {
-  transition: transform 0.2s ease;
-}
-
-.product-icon-container:hover {
-  transform: scale(1.05);
-}
-
 .list-group-item {
   transition: all 0.2s ease;
 }
 
 .list-group-item:hover {
   background-color: #f8f9fa;
-  transform: translateX(5px);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transform: translateX(3px);
 }
 
-.product-title {
-  color: #2c3e50;
-}
-
-.price-current {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.stat-item {
-  padding: 1rem;
+.product-icon {
   transition: transform 0.2s ease;
 }
 
-.stat-item:hover {
-  transform: translateY(-5px);
+.product-icon:hover {
+  transform: scale(1.1);
 }
 
-.btn {
+.price-display {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.action-buttons button, .action-buttons a {
   transition: all 0.2s ease;
 }
 
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+.action-buttons button:hover, .action-buttons a:hover {
+  transform: scale(1.1);
 }
 
 @media (max-width: 768px) {
-  .product-actions {
+  .col-md-3, .col-md-2 {
+    margin-top: 1rem;
+  }
+  
+  .action-buttons {
     display: flex;
-    flex-direction: column;
     gap: 0.5rem;
   }
   
-  .btn-sm {
-    font-size: 0.75rem;
+  .d-flex.gap-2 {
+    flex-direction: column;
+    gap: 0.5rem !important;
   }
+  
+  .btn-group {
+    width: 100%;
+  }
+}
+
+/* Estilos para el dropdown */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  max-height: 300px;
+  overflow-y: auto;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  display: none;
+  min-width: 10rem;
+  padding: 0.5rem 0;
+  margin: 0.125rem 0 0;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0.375rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+}
+
+.dropdown-menu.show {
+  display: block !important;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 1rem;
+  clear: both;
+  font-weight: 400;
+  color: #212529;
+  text-align: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+  color: #1e2125;
+}
+
+.dropdown-toggle {
+  cursor: pointer;
+}
+
+.dropdown-toggle::after {
+  margin-left: 0.5rem;
+  content: "";
+  border-top: 0.3em solid;
+  border-right: 0.3em solid transparent;
+  border-bottom: 0;
+  border-left: 0.3em solid transparent;
 }
 </style>
 
-<!-- Bootstrap Icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/socket-client.js"></script>
+
+<!-- Scripts para funcionalidad de filtrado -->
+<script>
+// Variables globales para filtrado (solo las no duplicadas)
+let currentFilter = 'all';
+
+// Función simple para alternar dropdown
+// Función para actualizar el contador de productos
+function updateProductCount() {
+  const count = filteredProducts.length;
+  
+  document.getElementById('product-count').textContent = count;
+  
+  // Actualizar badge en el header
+  const headerBadge = document.querySelector('.card-header .badge');
+  if (headerBadge) {
+    headerBadge.textContent = `${count} productos`;
+  }
+}
+
+// Función para extraer categorías únicas y llenar el dropdown
+function populateCategoryDropdown() {
+  const categoryDropdown = document.getElementById('category-list');
+  const categories = new Set();
+  
+  // Extraer categorías de todos los productos
+  totalProducts.forEach(product => {
+    if (product.category) {
+      categories.add(product.category);
+    }
+  });
+  
+  // Limpiar dropdown actual (excepto "Todas las categorías")
+  const existingItems = categoryDropdown.querySelectorAll('li:not(:first-child)');
+  existingItems.forEach(item => item.remove());
+  
+  // Agregar categorías al dropdown
+  categories.forEach(category => {
+    const li = document.createElement('li');
+    li.innerHTML = `<a class="dropdown-item" href="#" onclick="filterByCategory('${category}'); return false;">${category}</a>`;
+    categoryDropdown.appendChild(li);
+  });
+}
+
+// Inicializar cuando la página carga
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Inicializando filtros...');
+  
+  // Configurar eventos para cerrar dropdown
+  document.addEventListener('click', function(e) {
+    const dropdownButton = document.getElementById('categoryFilter');
+    const dropdownMenu = document.getElementById('category-list');
+    
+    // Si el click no fue en el botón o el menú, cerrar dropdown
+    if (dropdownButton && dropdownMenu && 
+        !dropdownButton.contains(e.target) && 
+        !dropdownMenu.contains(e.target)) {
+      dropdownMenu.classList.remove('show');
+    }
+  });
+  
+  // Cerrar dropdown al presionar Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      const dropdownMenu = document.getElementById('category-list');
+      if (dropdownMenu) {
+        dropdownMenu.classList.remove('show');
+      }
+    }
+  });
+  
+  populateCategoryDropdown();
+  updateProductCount();
+  
+  // Event listener para búsqueda en tiempo real
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', function(e) {
+      searchProducts(e.target.value);
+    });
+  }
+});
+
+// Actualizar cuando llegan nuevos productos via Socket.IO
+if (typeof socket !== 'undefined') {
+  socket.on('updateProducts', function(products) {
+    totalProducts = products;
+    filteredProducts = products;
+    
+    // Actualizar categorías y aplicar filtros sin setTimeout
+    populateCategoryDropdown();
+    // Aplicar filtro actual si no es "all"
+    if (currentFilter !== 'all') {
+      filterByCategory(currentFilter);
+    } else {
+      currentPage = 1;
+      renderProductsPage();
+    }
+  });
+}
+</script>

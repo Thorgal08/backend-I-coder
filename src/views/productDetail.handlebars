@@ -179,24 +179,22 @@ async function addProductToCart(productId, quantity = 1) {
 
 async function getOrCreateCart() {
   try {
-    // Intentar obtener carrito existente del localStorage
-    const savedCartId = localStorage.getItem('cartId');
-    if (savedCartId) {
-      // Verificar si el carrito existe
-      const checkResponse = await fetch(`/api/carts/${savedCartId}`);
-      if (checkResponse.ok) {
-        return savedCartId;
-      }
+    // Usar carrito por defecto para simplicidad de entrega
+    const defaultCartId = '687dac974264b0fa9e14dba6';
+    
+    // Verificar si el carrito existe
+    const checkResponse = await fetch(`/api/carts/${defaultCartId}`);
+    if (checkResponse.ok) {
+      return defaultCartId;
     }
     
-    // Crear nuevo carrito
+    // Si no existe, crear uno nuevo (aunque deberíamos tener uno predefinido)
     const response = await fetch('/api/carts', {
       method: 'POST'
     });
     
     if (response.ok) {
       const newCart = await response.json();
-      localStorage.setItem('cartId', newCart._id);
       return newCart._id;
     }
     

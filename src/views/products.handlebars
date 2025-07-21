@@ -318,22 +318,26 @@
 </div>
 
 <script>
-// Variable global para almacenar el carrito actual
-let currentCartId = localStorage.getItem('currentCartId');
+// Variable global para carrito por defecto (sin localStorage)
+let currentCartId = '687dac974264b0fa9e14dba6';
 
-// Función para obtener o crear carrito único
+// Función para obtener carrito por defecto
 async function getOrCreateCart() {
-  if (!currentCartId) {
-    try {
-      const response = await fetch('/api/carts', { method: 'POST' });
-      if (response.ok) {
-        const cart = await response.json();
-        currentCartId = cart._id;
-        localStorage.setItem('currentCartId', currentCartId);
-      }
-    } catch (error) {
-      console.error('Error creando carrito:', error);
+  try {
+    // Verificar que el carrito por defecto existe
+    const response = await fetch(`/api/carts/${currentCartId}`);
+    if (response.ok) {
+      return currentCartId;
     }
+    
+    // Si no existe, crear uno nuevo
+    const createResponse = await fetch('/api/carts', { method: 'POST' });
+    if (createResponse.ok) {
+      const cart = await createResponse.json();
+      currentCartId = cart._id;
+    }
+  } catch (error) {
+    console.error('Error obteniendo carrito:', error);
   }
   return currentCartId;
 }

@@ -84,9 +84,13 @@ io.on('connection', (socket) => {
   });
 
   socket.on('newProduct', async (data) => {
-    await productManager.addProduct(data);
-    const updatedProducts = await productManager.getProductsSimple();
-    io.emit('updateProducts', updatedProducts);
+    try {
+      await productManager.addProduct(data);
+      const updatedProducts = await productManager.getProductsSimple();
+      io.emit('updateProducts', updatedProducts);
+    } catch (error) {
+      console.error('Error al agregar producto:', error);
+    }
   });
 
   socket.on('deleteProduct', async (id) => {

@@ -5,15 +5,29 @@
       <div class="d-flex justify-content-between align-items-center">
         <div>
           <h1 class="h3 mb-1">⚡ Administración en Tiempo Real</h1>
-          <p class="text-muted mb-0">Gestiona tu inventario en vivo</p>
+          <p class="text-muted mb-0">Gestiona tu inventario en vivo - <span id="product-count">{{products.length}}</span> productos</p>
         </div>
-        <div class="btn-group" role="group">
-          <a href="/" class="btn btn-outline-primary">
-            <i class="bi bi-list-ul"></i> Vista Lista
-          </a>
-          <a href="/products" class="btn btn-outline-success">
-            <i class="bi bi-cart"></i> Tienda
-          </a>
+        <div class="d-flex gap-2">
+          <!-- Filtro por categoría -->
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="categoryFilter" onclick="toggleDropdown()" aria-expanded="false">
+              <i class="bi bi-funnel"></i> <span id="current-category">Todas las categorías</span>
+              <span id="update-indicator" class="badge bg-warning ms-1" style="display: none;">!</span>
+            </button>
+            <ul class="dropdown-menu" id="category-list">
+              <li><a class="dropdown-item" href="#" onclick="filterByCategory('all'); return false;">Todas las categorías</a></li>
+              <!-- Las categorías se llenarán dinámicamente -->
+            </ul>
+          </div>
+          
+          <div class="btn-group" role="group">
+            <a href="/" class="btn btn-outline-primary">
+              <i class="bi bi-house"></i> Inicio
+            </a>
+            <a href="/products" class="btn btn-outline-success">
+              <i class="bi bi-cart"></i> Tienda
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -162,11 +176,8 @@
                       {{/if}}
                     </div>
                     <div class="action-buttons">
-                      <button onclick="editProduct('{{this.id}}')" class="btn btn-outline-primary btn-sm me-1">
-                        <i class="bi bi-pencil"></i>
-                      </button>
                       <button onclick="deleteProduct('{{this.id}}')" class="btn btn-outline-danger btn-sm">
-                        <i class="bi bi-trash"></i>
+                        <i class="bi bi-trash"></i> Eliminar
                       </button>
                     </div>
                   </div>
@@ -176,22 +187,6 @@
             {{/each}}
           </div>
         </div>
-        <div class="card-footer bg-light">
-          <div class="row text-center">
-            <div class="col-md-4">
-              <strong class="text-success">✓</strong>
-              <small class="text-muted d-block">Productos Activos</small>
-            </div>
-            <div class="col-md-4">
-              <strong class="text-warning">📦</strong>
-              <small class="text-muted d-block">Total en Stock</small>
-            </div>
-            <div class="col-md-4">
-              <strong class="text-info">💰</strong>
-              <small class="text-muted d-block">Valor Total</small>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -199,35 +194,201 @@
 
 <!-- Scripts para funcionalidad adicional -->
 <script>
-function editProduct(productId) {
-  // Función para editar producto
-  alert('Función de edición en desarrollo');
-}
+// Variables globales para filtrado (solo las no duplicadas)
+let currentFilter = 'all';
 
 function deleteProduct(productId) {
   if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
     // La función de eliminación ya existe en socket-client.js
   }
 }
+
+// Función para actualizar el contador de productos
+function updateProductCount() {
+  const count = filteredProducts.length;
+  
+  document.getElementById('product-count').textContent = count;
+  
+  // Actualizar badge en el header del inventario
+  const inventoryBadge = document.querySelector('.card-header .badge');
+  if (inventoryBadge) {
+    inventoryBadge.textContent = `${count} productos`;
+  }
+}
+
+// Función para extraer categorías únicas y llenar el dropdown
+function populateCategoryDropdown() {
+  const categoryDropdown = document.getElementById('category-list');
+  const categories = new Set();
+  
+  // Extraer categorías de todos los productos
+  totalProducts.forEach(product => {
+    if (product.category) {
+      categories.add(product.category);
+    }
+  });
+  
+  // Limpiar dropdown actual (excepto "Todas las categorías")
+  const existingItems = categoryDropdown.querySelectorAll('li:not(:first-child)');
+  existingItems.forEach(item => item.remove());
+  
+  // Agregar categorías al dropdown
+  categories.forEach(category => {
+    const li = document.createElement('li');
+    li.innerHTML = `<a class="dropdown-item" href="#" onclick="filterByCategory('${category}'); return false;">${category}</a>`;
+    categoryDropdown.appendChild(li);
+  });
+}
+
+// Inicializar cuando la página carga
+document.addEventListener('DOMContentLoaded', function() {
+  // Event listener para el formulario de agregar producto
+  const productForm = document.getElementById('product-form');
+  if (productForm) {
+    productForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Obtener datos del formulario
+      const formData = new FormData(productForm);
+      const productData = {
+        title: formData.get('title'),
+        description: formData.get('description'),
+        price: parseFloat(formData.get('price')),
+        code: formData.get('code'),
+        stock: parseInt(formData.get('stock')),
+        category: formData.get('category'),
+        status: true // Por defecto los productos están disponibles
+      };
+      
+      // Validar datos
+      if (!productData.title || !productData.description || !productData.price || 
+          !productData.code || productData.stock < 0 || !productData.category) {
+        alert('Por favor, completa todos los campos correctamente.');
+        return;
+      }
+      
+      // Enviar producto via Socket.IO
+      socket.emit('newProduct', productData);
+      
+      // Limpiar formulario
+      productForm.reset();
+      
+      // Mostrar mensaje de confirmación
+      showNotification('Producto agregado correctamente', 'success');
+    });
+  }
+  
+  // Event listener manual para el dropdown
+  const dropdownButton = document.getElementById('categoryFilter');
+  const dropdownMenu = document.getElementById('category-list');
+  
+  if (dropdownButton && dropdownMenu) {
+    // Cerrar dropdown al hacer click fuera
+    document.addEventListener('click', function(e) {
+      if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.classList.remove('show');
+      }
+    });
+    
+    // Cerrar dropdown con tecla Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        dropdownMenu.classList.remove('show');
+      }
+    });
+  }
+  
+  populateCategoryDropdown();
+  updateProductCount();
+});
+
+// Variable para controlar si se deben procesar actualizaciones
+let allowUpdates = true;
+
+// Actualizar cuando llegan nuevos productos via Socket.IO
+if (typeof socket !== 'undefined') {
+  socket.on('updateProducts', function(products) {
+    // Solo actualizar si está permitido
+    if (!allowUpdates) {
+      return; // No hacer nada si las actualizaciones están deshabilitadas
+    }
+    
+    totalProducts = products;
+    
+    // Si no hay filtro activo, actualizar normalmente
+    if (currentFilter === 'all') {
+      filteredProducts = products;
+      populateCategoryDropdown();
+      currentPage = 1;
+      renderProductsPage();
+    } else {
+      // Si hay filtro activo, NO hacer nada para evitar el parpadeo
+      // Solo mostrar indicador sin tocar el DOM
+      const updateIndicator = document.getElementById('update-indicator');
+      if (updateIndicator) {
+        updateIndicator.style.display = 'inline-block';
+        updateIndicator.title = 'Hay nuevos datos disponibles. Cambia el filtro para actualizar.';
+      }
+    }
+  });
+}
 </script>
 
 <!-- Estilos adicionales -->
 <style>
-.list-group-item {
-  transition: all 0.2s ease;
+/* Estilos para dropdown manual */
+.dropdown {
+  position: relative;
 }
 
-.list-group-item:hover {
-  background-color: #f8f9fa;
-  transform: translateX(3px);
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  display: none;
+  min-width: 200px;
+  padding: 0.5rem 0;
+  margin: 0.125rem 0 0;
+  font-size: 1rem;
+  color: #212529;
+  text-align: left;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0,0,0,.15);
+  border-radius: 0.375rem;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,.175);
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 1rem;
+  clear: both;
+  font-weight: 400;
+  color: #212529;
+  text-align: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
+}
+
+.dropdown-item:hover {
+  color: #1e2125;
+  background-color: #e9ecef;
+}
+
+.list-group-item {
+  /* Eliminado transition y hover para evitar efectos visuales problemáticos */
 }
 
 .product-icon {
-  transition: transform 0.2s ease;
-}
-
-.product-icon:hover {
-  transform: scale(1.1);
+  /* Eliminado transition y hover para evitar efectos visuales problemáticos */
 }
 
 .price-display {
@@ -235,11 +396,7 @@ function deleteProduct(productId) {
 }
 
 .action-buttons button {
-  transition: all 0.2s ease;
-}
-
-.action-buttons button:hover {
-  transform: scale(1.1);
+  /* Eliminado transition y hover para evitar efectos visuales problemáticos */
 }
 
 .card-header.bg-gradient {

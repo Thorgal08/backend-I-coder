@@ -446,13 +446,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
-  // Auto-guardar carrito en localStorage
-  const cartData = {
-    cartId: '{{cartId}}',
-    timestamp: new Date().toISOString(),
-    products: []
-  };
-  localStorage.setItem('currentCart', JSON.stringify(cartData));
+  // Carrito cargado (sin localStorage para entrega)
+  console.log('Carrito cargado:', '{{cartId}}');
 });
 </script>
 
